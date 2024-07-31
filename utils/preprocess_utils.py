@@ -76,8 +76,10 @@ def torch_setdiff1d(miss_index, match_index):
 def warp_keypoints(keypoints, homography_mat):
     source = torch.cat([keypoints, torch.ones(len(keypoints), 1).to(keypoints.device)], dim=-1)
     dest = (homography_mat @ source.T).T
-    dest /= dest[:, 2:3]
-    return dest[:, :2]
+    # dest /= dest[:, 2:3]
+    # return dest[:, :2]
+    dest_normalized = dest[:, :2] / dest[:, 2:3]  # 使用除法创建一个新的张量，而不是就地修改
+    return dest_normalized
 
 def torch_find_matches(src_keypoints1, src_keypoints2, homography, dist_thresh=3, n_iters=1):
     match_list_1, match_list_2 = torch.empty(0,dtype=torch.int64,device=src_keypoints1.device), torch.empty(0,dtype=torch.int64,device=src_keypoints2.device) 

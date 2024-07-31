@@ -100,10 +100,10 @@ def sample_descriptors(keypoints, descriptors, s: int = 8):
 def warp_keypoints(keypoints, homography_mat):
     source = torch.cat([keypoints, torch.ones(len(keypoints), 1).to(keypoints.device)], dim=-1)
     dest = (homography_mat @ source.T).T
-    dest = dest.clone()  # 创建一个新的张量副本
-    dest /= dest[:, 2:3]
-    return dest[:, :2]
-
+    # dest /= dest[:, 2:3]
+    dest_normalized = dest[:, :2] / dest[:, 2:3] # 使用除法创建一个新的张量，而不是就地修改
+    # return dest[:, :2]
+    return dest_normalized
 class SuperPoint(nn.Module):
     """SuperPoint Convolutional Detector and Descriptor
 
