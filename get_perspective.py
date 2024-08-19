@@ -4,6 +4,7 @@ import cv2
 import time
 from utils.preprocess_utils import get_perspective_mat
 
+# 处理一组图像，生成透视变换矩阵，将原始图像通过这个矩阵变换后保存，并记录下每个图像对应的透视变换矩阵
 
 np.random.seed(100) # changed the seed if needed
 image_dir = "assets/outdoor_test_images" 

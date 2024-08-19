@@ -62,7 +62,7 @@ import torch.distributed as torch_dist
 import torch.backends.cudnn as cudnn
 import random
 from copy import deepcopy
-from .preprocess_utils import scale_homography, torch_find_matches
+from utils.preprocess_utils import scale_homography, torch_find_matches
 matplotlib.use('Agg')
 
 superpoint_url = "https://raw.githubusercontent.com/magicleap/SuperGluePretrainedNetwork/master/models/weights/superpoint_v1.pth"

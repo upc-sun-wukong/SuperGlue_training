@@ -129,7 +129,7 @@ if __name__ == '__main__':
         print('Will not resize images')
     else:
         raise ValueError('Cannot specify more than two integers for --resize')
-    download_base_files()
+    # download_base_files()
     device = 'cuda' if torch.cuda.is_available() and not opt.force_cpu else 'cpu'
     print('Running inference on device \"{}\"'.format(device))
     try:

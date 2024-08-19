@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 import pycocotools.coco as coco
 from torch.utils.data import Dataset
-from .preprocess_utils import get_perspective_mat, scale_homography, resize_aspect_ratio
+from utils.preprocess_utils import get_perspective_mat, scale_homography, resize_aspect_ratio
 from pathlib import Path
 
 class COCO_loader(Dataset):
