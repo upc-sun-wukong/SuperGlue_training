@@ -31,10 +31,10 @@ class COCO_loader(Dataset):
         return len(self.images)
 
     def apply_augmentations(self, image1, image2):
-        image1_dict = {'image': image1}
-        image2_dict = {'image': image2}
+        image1_dict = {'images': image1}
+        image2_dict = {'images': image2}
         result1, result2 = self.aug_func(**image1_dict), self.aug_func(**image2_dict)
-        return result1['image'], result2['image']
+        return result1['images'], result2['images']
 
     def __getitem__(self, index: int):
         resize = True

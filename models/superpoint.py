@@ -156,9 +156,9 @@ class SuperPoint(nn.Module):
     def forward(self, data, curr_max_kp=None, curr_key_thresh=None):
         if curr_max_kp is None: curr_max_kp = self.config['max_keypoints']
         if curr_key_thresh is None: curr_key_thresh = self.config['keypoint_threshold']
-        """ Compute keypoints, scores, descriptors for image """
+        """ Compute keypoints, scores, descriptors for images """
         # Shared Encoder
-        x = self.relu(self.conv1a(data['image']))
+        x = self.relu(self.conv1a(data['images']))
         x = self.relu(self.conv1b(x))
         x = self.pool(x)
         x = self.relu(self.conv2a(x))
@@ -186,7 +186,7 @@ class SuperPoint(nn.Module):
         scores = [s[tuple(k.t())] for s, k in zip(scores, keypoints)]
         # Convert (h, w) to (x, y)
         keypoints = [torch.flip(k, [1]).float() for k in keypoints]
-        # Discard keypoints near the image borders
+        # Discard keypoints near the images borders
         keypoints, scores = list(zip(*[
             remove_borders(k, s, self.config['remove_borders'], h*8, w*8)
             for k, s in zip(keypoints, scores)]))
@@ -213,13 +213,13 @@ class SuperPoint(nn.Module):
 
     def forward_train(self, data):
         """
-        Compute keypoints, scores, descriptors for image during training.
-        Here the first half contains the original image, the next half contains warped images and its 
+        Compute keypoints, scores, descriptors for images during training.
+        Here the first half contains the original images, the next half contains warped images and its
         keypoints should be removed from border according to the given homography matrix
         """
         # Shared Encoder
-        homo_matrices = data['homography'] #if batch size of image is N, the batch size of homography is N/2
-        x = self.relu(self.conv1a(data['image']))
+        homo_matrices = data['homography'] #if batch size of images is N, the batch size of homography is N/2
+        x = self.relu(self.conv1a(data['images']))
         x = self.relu(self.conv1b(x))
         x = self.pool(x)
         x = self.relu(self.conv2a(x))
@@ -247,12 +247,12 @@ class SuperPoint(nn.Module):
         scores = [s[tuple(k.t())] for s, k in zip(scores, keypoints)]
         # Convert (h, w) to (x, y)
         keypoints = [torch.flip(k, [1]).float() for k in keypoints]
-        # Discard keypoints near the image borders
+        # Discard keypoints near the images borders
         homo_mat_index = 0
         results = []
         mid_point = len(keypoints) // 2
         for i, (k,s) in enumerate(zip(keypoints, scores)):
-            if i < mid_point: # orig image
+            if i < mid_point: # orig images
                 results.append(remove_borders(k, s, self.config['remove_borders'], h*8, w*8))
             else:
                 homo_matrix = homo_matrices[homo_mat_index]

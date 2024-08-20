@@ -146,7 +146,7 @@ def train(config, rank):
             with torch.no_grad():
                 all_match_index_0, all_match_index_1, all_match_index_2 = torch.empty(0,dtype=torch.int64,device=homographies.device), torch.empty(0,dtype=torch.int64,device=homographies.device), torch.empty(0,dtype=torch.int64,device=homographies.device)
                 t2 = time_synchronized()
-                superpoint_results = superpoint_model.forward_train({'homography': homographies, 'image': orig_warped})
+                superpoint_results = superpoint_model.forward_train({'homography': homographies, 'images': orig_warped})
                 keypoints = torch.stack(superpoint_results['keypoints'], 0)
                 descriptors = torch.stack(superpoint_results['descriptors'], 0)
                 scores = torch.stack(superpoint_results['scores'], 0)

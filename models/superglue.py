@@ -77,7 +77,7 @@ def MLP(channels: list, use_layernorm, do_bn=True):
 
 
 def normalize_keypoints(kpts, image_shape):
-    """ Normalize keypoints locations based on image image_shape"""
+    """ Normalize keypoints locations based on images image_shape"""
     _, _, height, width = image_shape
     one = kpts.new_tensor(1)
     size = torch.stack([one*width, one*height])[None]

@@ -219,7 +219,7 @@ class AverageTimer:
 
 
 class VideoStreamer:
-    """ Class to help process image streams. Four types of possible inputs:"
+    """ Class to help process images streams. Four types of possible inputs:"
         1.) USB Webcam.
         2.) An IP camera
         3.) A directory of images (files in directory matching 'image_glob').
@@ -251,7 +251,7 @@ class VideoStreamer:
             self._ip_camera = True
             self.listing = range(0, self.max_length)
         elif Path(basedir).is_dir():
-            print('==> Processing image directory input: {}'.format(basedir))
+            print('==> Processing images directory input: {}'.format(basedir))
             self.listing = list(Path(basedir).glob(image_glob[0]))
             for j in range(1, len(image_glob)):
                 image_path = list(Path(basedir).glob(image_glob[j]))
@@ -279,15 +279,15 @@ class VideoStreamer:
             raise IOError('Could not read camera')
 
     def load_image(self, impath):
-        """ Read image as grayscale and resize to img_size.
+        """ Read images as grayscale and resize to img_size.
         Inputs
-            impath: Path to input image.
+            impath: Path to input images.
         Returns
             grayim: uint8 numpy array sized H x W.
         """
         grayim = cv2.imread(impath, 0)
         if grayim is None:
-            raise Exception('Error reading image %s' % impath)
+            raise Exception('Error reading images %s' % impath)
         w, h = grayim.shape[1], grayim.shape[0]
         w_new, h_new = process_resize(w, h, self.resize)
         grayim = cv2.resize(
@@ -297,8 +297,8 @@ class VideoStreamer:
     def next_frame(self):
         """ Return the next frame, and increment internal counter.
         Returns
-             image: Next H x W image.
-             status: True or False depending whether image was loaded.
+             images: Next H x W images.
+             status: True or False depending whether images was loaded.
         """
 
         if self.i == self.max_length:
@@ -306,7 +306,7 @@ class VideoStreamer:
         if self.camera:
 
             if self._ip_camera:
-                #Wait for first image, making sure we haven't exited
+                #Wait for first images, making sure we haven't exited
                 while self._ip_grabbed is False and self._ip_exited is False:
                     time.sleep(.001)
 
@@ -316,7 +316,7 @@ class VideoStreamer:
             else:
                 ret, image = self.cap.read()
             if ret is False:
-                print('VideoStreamer: Cannot get image from camera')
+                print('VideoStreamer: Cannot get images from camera')
                 return (None, False)
             w, h = image.shape[1], image.shape[0]
             if self.video_file:
@@ -460,7 +460,7 @@ def estimate_pose(kpts0, kpts1, K0, K1, thresh, conf=0.99999):
 
 
 def rotate_intrinsics(K, image_shape, rot):
-    """image_shape is the shape of the image after rotation"""
+    """image_shape is the shape of the images after rotation"""
     assert rot <= 3
     h, w = image_shape[:2][::-1 if (rot % 2) else 1]
     fx, fy, cx, cy = K[0, 0], K[1, 1], K[0, 2], K[1, 2]
@@ -731,10 +731,10 @@ def weighted_score(results):
 def find_pred(inp, superpoint_model, superglue_model):
     pred = {}
     if 'keypoints0' not in inp:
-        pred0 = superpoint_model({'image': inp['image0']}, curr_max_kp=-1, curr_key_thresh=0.005)
+        pred0 = superpoint_model({'images': inp['image0']}, curr_max_kp=-1, curr_key_thresh=0.005)
         pred = {**pred, **{k+'0': v for k, v in pred0.items()}}
     if 'keypoints1' not in inp:
-        pred1 = superpoint_model({'image': inp['image1']}, curr_max_kp=-1, curr_key_thresh=0.005)
+        pred1 = superpoint_model({'images': inp['image1']}, curr_max_kp=-1, curr_key_thresh=0.005)
         pred = {**pred, **{k+'1': v for k, v in pred1.items()}}
 
     data = {**inp, **pred}

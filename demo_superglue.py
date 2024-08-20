@@ -64,7 +64,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--input', type=str, default='0',
         help='ID of a USB webcam, URL of an IP camera, '
-             'or path to an image directory or movie file')
+             'or path to an images directory or movie file')
     parser.add_argument(
         '--output_dir', type=str, default=None,
         help='Directory where to write output frames (If None, no output)')
@@ -80,7 +80,7 @@ if __name__ == '__main__':
         help='Maximum length if input is a movie or directory')
     parser.add_argument(
         '--resize', type=int, nargs='+', default=[640, 480],
-        help='Resize the input image before running inference. If two numbers, '
+        help='Resize the input images before running inference. If two numbers, '
              'resize to the exact dimensions, if one number, resize the max '
              'dimension, if -1, do not resize')
 
@@ -160,7 +160,7 @@ if __name__ == '__main__':
     assert ret, 'Error when reading the first frame (try different --input?)'
 
     frame_tensor = frame2tensor(frame, device)
-    last_data = matching.superpoint({'image': frame_tensor})
+    last_data = matching.superpoint({'images': frame_tensor})
     last_data = {k+'0': last_data[k] for k in keys}
     last_data['image0'] = frame_tensor
     last_frame = frame
@@ -259,7 +259,7 @@ if __name__ == '__main__':
             #stem = 'matches_{:06}_{:06}'.format(last_image_id, vs.i-1)
             stem = 'matches_{:06}_{:06}'.format(stem0, stem1)
             out_file = str(Path(opt.output_dir, stem + '.png'))
-            print('\nWriting image to {}'.format(out_file))
+            print('\nWriting images to {}'.format(out_file))
             cv2.imwrite(out_file, out)
 
     cv2.destroyAllWindows()

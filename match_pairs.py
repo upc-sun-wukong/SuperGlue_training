@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '--input_pairs', type=str, default='assets/scannet_sample_pairs_with_gt.txt',
-        help='Path to the list of image pairs')
+        help='Path to the list of images pairs')
     parser.add_argument(
         '--input_dir', type=str, default='assets/scannet_sample_images/',
         help='Path to the directory that contains the images')
@@ -83,12 +83,12 @@ if __name__ == '__main__':
         help='Maximum number of pairs to evaluate')
     parser.add_argument(
         '--resize', type=int, nargs='+', default=[640, 480],
-        help='Resize the input image before running inference. If two numbers, '
+        help='Resize the input images before running inference. If two numbers, '
              'resize to the exact dimensions, if one number, resize the max '
              'dimension, if -1, do not resize')
     parser.add_argument(
         '--resize_float', action='store_true',
-        help='Resize the image after casting uint8 to float')
+        help='Resize the images after casting uint8 to float')
 
     parser.add_argument(
         '--superglue', default='indoor',
@@ -120,7 +120,7 @@ if __name__ == '__main__':
              ' (requires ground truth pose and intrinsics)')
     parser.add_argument(
         '--fast_viz', action='store_true',
-        help='Use faster image visualization with OpenCV instead of Matplotlib')
+        help='Use faster images visualization with OpenCV instead of Matplotlib')
     parser.add_argument(
         '--cache', action='store_true',
         help='Skip the pair if output .npz files are already found')
@@ -265,13 +265,13 @@ if __name__ == '__main__':
         else:
             rot0, rot1 = 0, 0
 
-        # Load the image pair.
+        # Load the images pair.
         image0, inp0, scales0 = read_image(
             input_dir / name0, device, opt.resize, rot0, opt.resize_float)
         image1, inp1, scales1 = read_image(
             input_dir / name1, device, opt.resize, rot1, opt.resize_float)
         if image0 is None or image1 is None:
-            print('Problem reading image pair: {} {}'.format(
+            print('Problem reading images pair: {} {}'.format(
                 input_dir/name0, input_dir/name1))
             exit(1)
         timer.update('load_image')
@@ -301,7 +301,7 @@ if __name__ == '__main__':
             K1 = np.array(pair[13:22]).astype(float).reshape(3, 3)
             T_0to1 = np.array(pair[22:]).astype(float).reshape(4, 4)
 
-            # Scale the intrinsics to resized image.
+            # Scale the intrinsics to resized images.
             K0 = scale_intrinsics(K0, scales0)
             K1 = scale_intrinsics(K1, scales1)
 
@@ -324,7 +324,7 @@ if __name__ == '__main__':
             precision = np.mean(correct) if len(correct) > 0 else 0
             matching_score = num_correct / len(kpts0) if len(kpts0) > 0 else 0
 
-            thresh = 1.  # In pixels relative to resized image size.
+            thresh = 1.  # In pixels relative to resized images size.
             ret = estimate_pose(mkpts0, mkpts1, K0, K1, thresh)
             if ret is None:
                 err_t, err_R = np.inf, np.inf
@@ -370,7 +370,7 @@ if __name__ == '__main__':
             timer.update('viz_match')
 
         if do_viz_eval:
-            # Visualize the evaluation results for the image pair.
+            # Visualize the evaluation results for the images pair.
             color = np.clip((epi_errs - 0) / (1e-3 - 0), 0, 1)
             color = error_colormap(1 - color)
             deg, delta = ' deg', 'Delta '

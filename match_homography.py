@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '--input_homography', type=str, default='assets/coco_test_images_homo.txt',
-        help='Path to the list of image pairs and corresponding homographies')
+        help='Path to the list of images pairs and corresponding homographies')
     parser.add_argument(
         '--input_dir', type=str, default='assets/coco_test_images/',
         help='Path to the directory that contains the images')
@@ -37,12 +37,12 @@ if __name__ == '__main__':
         help='Maximum number of pairs to evaluate')
     parser.add_argument(
         '--resize', type=int, nargs='+', default=[640, 480],
-        help='Resize the input image before running inference. If two numbers, '
+        help='Resize the input images before running inference. If two numbers, '
              'resize to the exact dimensions, if one number, resize the max '
              'dimension, if -1, do not resize')
     parser.add_argument(
         '--resize_float', action='store_true',
-        help='Resize the image after casting uint8 to float')
+        help='Resize the images after casting uint8 to float')
 
     parser.add_argument(
         '--superglue', default='coco_homo',
@@ -76,7 +76,7 @@ if __name__ == '__main__':
              ' (requires ground truth pose and intrinsics)')
     parser.add_argument(
         '--fast_viz', action='store_true',
-        help='Use faster image visualization with OpenCV instead of Matplotlib')
+        help='Use faster images visualization with OpenCV instead of Matplotlib')
     parser.add_argument(
         '--cache', action='store_true',
         help='Skip the pair if output .npz files are already found')
@@ -186,7 +186,7 @@ if __name__ == '__main__':
                                                 opt.resize, 0, opt.resize_float)
 
         if image0 is None or image1 is None:
-            print('Problem reading image pair: {}'.format(
+            print('Problem reading images pair: {}'.format(
                 input_dir/ image_name))
             exit(1)
         timer.update('load_image')

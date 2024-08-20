@@ -9,7 +9,7 @@ train_params:
   restore_opt: true #whether to restore the optimizer states while resuming the training from given ckpt
   num_workers: 2 #number of dataloader workers
   log_interval: 50 
-  debug: true #if true plots the matched keypoints for one image in every batch during training
+  debug: true #if true plots the matched keypoints for one images in every batch during training
   debug_path: "debug" #folder where debug plots should be stored
   debug_iters: 10 #number of iters in each epoch for which debug plot should be made
   val_images_count: 10 #should be <= 1500. Number of images to use for computing validation score
@@ -46,7 +46,7 @@ dataset_params:
   apply_color_aug: true #whether to apply photometric distortions
   image_height: 480 
   image_width: 640
-  resize_aspect: false #whether to resize the input image with aspect ratio maintained
+  resize_aspect: false #whether to resize the input images with aspect ratio maintained
   augmentation_params:
     patch_ratio: 0.85 
     #All the below params are ranges for distortion. (0, Mentioned_value). 

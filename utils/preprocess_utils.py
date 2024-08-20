@@ -105,7 +105,7 @@ def torch_find_matches(src_keypoints1, src_keypoints2, homography, dist_thresh=3
 
 def scale_homography(homo_matrix, src_height, src_width, dest_height, dest_width):
     """
-    If src and warped image is scaled by same amount, then homography needs to changed according
+    If src and warped images is scaled by same amount, then homography needs to changed according
     to the scale in x and y direction
     """
     scale_x = dest_width / src_width

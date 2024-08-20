@@ -9,7 +9,7 @@ from utils.preprocess_utils import get_perspective_mat
 np.random.seed(100) # changed the seed if needed
 image_dir = "assets/outdoor_test_images" 
 txt_file = open("assets/outdoor_test_images_homo.txt", 'w') #path where the generated homographies should be stored
-image_save_path = "gen_homos" #path where the original and warped image will be stored for visualization
+image_save_path = "gen_homos" #path where the original and warped images will be stored for visualization
 if not os.path.isdir(image_save_path): os.makedirs(image_save_path)
 content = os.listdir(image_dir)
 ma_fn = lambda x: float(x)
