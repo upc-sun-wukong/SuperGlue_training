@@ -19,8 +19,23 @@ from models.matching import Matching
 from utils.common import (AverageTimer, VideoStreamer,
                           make_matching_plot_fast, frame2tensor,download_base_files, weights_mapping)
 
+from scipy.interpolate import Rbf
+import numpy as np
+
 torch.set_grad_enabled(False)
 
+def tps_transform(src_points, dst_points, points):
+    """
+    使用Thin Plate Spline进行点的空间变换
+    :param src_points: 源点集 (n, 2)
+    :param dst_points: 目标点集 (n, 2)
+    :param points: 需要变换的点集 (m, 2)
+    :return: 变换后的点集 (m, 2)
+    """
+    rbf_x = Rbf(src_points[:, 0], src_points[:, 1], dst_points[:, 0], function='thin_plate', smooth=5)
+    rbf_y = Rbf(src_points[:, 0], src_points[:, 1], dst_points[:, 1], function='thin_plate', smooth=5)
+    transformed_points = np.vstack((rbf_x(points[:, 0], points[:, 1]), rbf_y(points[:, 0], points[:, 1]))).T
+    return transformed_points
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -120,7 +135,7 @@ if __name__ == '__main__':
     keys = ['keypoints', 'scores', 'descriptors']
 
     image0 = cv2.imread('images/image1.jpg')[:, :, 0]
-    image1 = cv2.imread('images/image2.jpg')[:,:,0]
+    image1 = cv2.imread('images/infrared.jpg')[:,:,0]
     if image0 is None or image1 is None: raise ValueError(f"image could not be read,is none")
 
     image0_tensor = frame2tensor(image0, device)
@@ -160,6 +175,20 @@ if __name__ == '__main__':
     mkpts1 = kpts1[matches[valid]]
     color = cm.jet(confidence[valid])
 
+    # TPS变换
+    transformed_kpts0 = tps_transform(mkpts0, mkpts1, kpts0)
+    # 生成用于图像配准的变换矩阵
+    H, _ = cv2.findHomography(mkpts0, mkpts1, cv2.RANSAC, 5.0)
+    # 对image0应用该变换，得到配准后的图像
+    height, width = image1.shape
+    warped_image0 = cv2.warpPerspective(image0_source, H, (width, height))
+    # 融合图像 简单的加权平均
+    alpha = 0.5
+    blended_image = cv2.addWeighted(warped_image0, alpha, image1_source, 1 - alpha, 0)
+    cv2.imshow('Blended Image', blended_image)
+
+
+    # 生成结果图像
     text = [
         'SuperGlue',
         'Keypoints: {}:{}'.format(len(kpts0), len(kpts1)),
@@ -182,69 +211,6 @@ if __name__ == '__main__':
     cv2.waitKey(0)
     # 在用户按下键后关闭所有OpenCV窗口
     cv2.destroyAllWindows()
-
-
-
-
-
-
-
-
-
-
-# import cv2
-# from matplotlib import cm
-#
-# from models.matching import Matching
-# from utils.common import (frame2tensor, make_matching_plot_fast)
-#
-# # Load the images directly using OpenCV
-# image0 = cv2.imread('images/image1.jpg')
-# image1 = cv2.imread('images/image2.jpg')
-#
-# # Resize if necessary
-# resize = [640, 480]
-# image0 = cv2.resize(image0, (resize[0], resize[1]))
-# image1 = cv2.resize(image1, (resize[0], resize[1]))
-#
-# # Convert images to tensor
-# frame_tensor0 = frame2tensor(image0, 'cuda')
-# frame_tensor1 = frame2tensor(image1, 'cuda')
-#
-# # Matching process
-# config = {
-#     'superpoint': {
-#         'nms_radius': 4,
-#         'keypoint_threshold': 0.005,
-#         'max_keypoints': -1
-#     },
-#     'superglue': {
-#         'weights_path': 'models/weights/superglue_cocohomo.pt',
-#         'sinkhorn_iterations': 20,
-#         'match_threshold': 0.2,
-#     }
-# }
-# matching = Matching(config).eval().to('cuda')
-# last_data = matching.superpoint({'images ': frame_tensor0})
-# last_data = {k+'0': last_data[k] for k in ['keypoints', 'scores', 'descriptors']}
-# last_data['image0'] = frame_tensor0
-#
-# pred = matching({**last_data, 'image1': frame_tensor1})
-#
-# # Process and visualize the matches
-# kpts0 = last_data['keypoints0'][0].cpu().numpy()
-# kpts1 = pred['keypoints1'][0].cpu().numpy()
-# matches = pred['matches0'][0].cpu().numpy()
-# confidence = pred['matching_scores0'][0].cpu().numpy()
-#
-# valid = matches > -1
-# mkpts0 = kpts0[valid]
-# mkpts1 = kpts1[matches[valid]]
-# color = cm.jet(confidence[valid])
-#
-# out = make_matching_plot_fast(
-#     image0, image1, kpts0, kpts1, mkpts0, mkpts1, color, text=['SuperGlue'],
-#     show_keypoints=False, path=None)
-#
-# cv2.imwrite('output/matches.png', out)
+    cv2.imwrite('output/Blended Image.png', blended_image)
+    cv2.imwrite('output/matches.png', out)
 
