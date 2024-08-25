@@ -20,6 +20,27 @@ from utils.preprocess_utils import torch_find_matches
 from utils.dataset import COCO_loader, COCO_valloader, collate_batch
 from torch.utils.tensorboard import SummaryWriter
 
+import subprocess
+import os
+import signal
+def preexec_function():
+    # 忽略 SIGHUP 信号
+    signal.signal(signal.SIGHUP, signal.SIG_IGN)
+    # 创建新的会话，脱离控制终端
+    os.setsid()
+
+def run_in_background():
+    # 打开输出文件，以追加模式写入
+    with open('nohup.txt', 'a') as output_file:
+        process = subprocess.Popen(
+            ['python', 'train_superglue.py'],
+            stdout=output_file,
+            stderr=output_file,
+            preexec_fn=preexec_function,
+            close_fds=True
+        )
+    print(f"Started train_superglue.py with PID: {process.pid}")
+
 def change_lr(epoch, config, optimizer):
     if epoch >= config['optimizer_params']['step_epoch']:
         curr_lr = config['optimizer_params']['lr']
@@ -222,6 +243,7 @@ def train(config, rank):
 
 
 if __name__ == "__main__":
+    run_in_background()
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_path', type=str, default="configs/coco_config.yaml", help="Path to the config file")
     parser.add_argument('--local_rank', type=int, default=-1, help="Rank of the process incase of DDP")
