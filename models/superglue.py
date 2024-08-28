@@ -1,45 +1,3 @@
-# %BANNER_BEGIN%
-# ---------------------------------------------------------------------
-# %COPYRIGHT_BEGIN%
-#
-#  Magic Leap, Inc. ("COMPANY") CONFIDENTIAL
-#
-#  Unpublished Copyright (c) 2020
-#  Magic Leap, Inc., All Rights Reserved.
-#
-# NOTICE:  All information contained herein is, and remains the property
-# of COMPANY. The intellectual and technical concepts contained herein
-# are proprietary to COMPANY and may be covered by U.S. and Foreign
-# Patents, patents in process, and are protected by trade secret or
-# copyright law.  Dissemination of this information or reproduction of
-# this material is strictly forbidden unless prior written permission is
-# obtained from COMPANY.  Access to the source code contained herein is
-# hereby forbidden to anyone except current COMPANY employees, managers
-# or contractors who have executed Confidentiality and Non-disclosure
-# agreements explicitly covering such access.
-#
-# The copyright notice above does not evidence any actual or intended
-# publication or disclosure  of  this source code, which includes
-# information that is confidential and/or proprietary, and is a trade
-# secret, of  COMPANY.   ANY REPRODUCTION, MODIFICATION, DISTRIBUTION,
-# PUBLIC  PERFORMANCE, OR PUBLIC DISPLAY OF OR THROUGH USE  OF THIS
-# SOURCE CODE  WITHOUT THE EXPRESS WRITTEN CONSENT OF COMPANY IS
-# STRICTLY PROHIBITED, AND IN VIOLATION OF APPLICABLE LAWS AND
-# INTERNATIONAL TREATIES.  THE RECEIPT OR POSSESSION OF  THIS SOURCE
-# CODE AND/OR RELATED INFORMATION DOES NOT CONVEY OR IMPLY ANY RIGHTS
-# TO REPRODUCE, DISCLOSE OR DISTRIBUTE ITS CONTENTS, OR TO MANUFACTURE,
-# USE, OR SELL ANYTHING THAT IT  MAY DESCRIBE, IN WHOLE OR IN PART.
-#
-# %COPYRIGHT_END%
-# ----------------------------------------------------------------------
-# %AUTHORS_BEGIN%
-#
-#  Originating Authors: Paul-Edouard Sarlin
-#
-# %AUTHORS_END%
-# --------------------------------------------------------------------*/
-# %BANNER_END%
-
 from copy import deepcopy
 from pathlib import Path
 import torch
@@ -48,7 +6,7 @@ import torch_scatter as ts
 
 
 class LayerNorm(nn.Module):
-    "Construct a layernorm module (See citation for details)."
+    "Construct a layernorm module (See citation for details).归一化模块"
     def __init__(self, features, eps=1e-6):
         super(LayerNorm, self).__init__()
         self.a_2 = nn.Parameter(torch.ones(features))
@@ -61,7 +19,7 @@ class LayerNorm(nn.Module):
         return torch.reshape(self.a_2, (1, -1, 1)) * ((x - mean) / (std + self.eps)) + torch.reshape(self.b_2, (1, -1, 1))
 
 def MLP(channels: list, use_layernorm, do_bn=True):
-    """ Multi-layer perceptron """
+    """ Multi-layer perceptron 构建多层感知机制，用于网络中的非线性变换 """
     n = len(channels)
     layers = []
     for i in range(1, n):
@@ -77,7 +35,7 @@ def MLP(channels: list, use_layernorm, do_bn=True):
 
 
 def normalize_keypoints(kpts, image_shape):
-    """ Normalize keypoints locations based on image image_shape"""
+    """ Normalize keypoints locations based on image image_shape关键点坐标归一化"""
     _, _, height, width = image_shape
     one = kpts.new_tensor(1)
     size = torch.stack([one*width, one*height])[None]
@@ -87,7 +45,7 @@ def normalize_keypoints(kpts, image_shape):
 
 
 class KeypointEncoder(nn.Module):
-    """ Joint encoding of visual appearance and location using MLPs"""
+    """ Joint encoding of visual appearance and location using MLPs使用 MLP 联合编码关键点的视觉特征和位置"""
     def __init__(self, feature_dim, layers, use_layernorm=False):
         super().__init__()
         self.encoder = MLP([3] + layers + [feature_dim], use_layernorm=use_layernorm)
@@ -98,14 +56,14 @@ class KeypointEncoder(nn.Module):
         return self.encoder(torch.cat(inputs, dim=1))
 
 
-def attention(query, key, value):
+def attention(query, key, value): #实现注意力机制的计算
     dim = query.shape[1]
     scores = torch.einsum('bdhn,bdhm->bhnm', query, key) / dim**.5
     prob = torch.nn.functional.softmax(scores, dim=-1)
     return torch.einsum('bhnm,bdhm->bdhn', prob, value), prob
 
 
-class MultiHeadedAttention(nn.Module):
+class MultiHeadedAttention(nn.Module): #实现多头注意力机制
     """ Multi-head attention to increase model expressivitiy """
     def __init__(self, num_heads: int, d_model: int):
         super().__init__()
@@ -123,7 +81,7 @@ class MultiHeadedAttention(nn.Module):
         return self.merge(x.contiguous().view(batch_dim, self.dim*self.num_heads, -1))
 
 
-class AttentionalPropagation(nn.Module):
+class AttentionalPropagation(nn.Module):  #图神经网络层
     def __init__(self, feature_dim: int, num_heads: int, use_layernorm=False):
         super().__init__()
         self.attn = MultiHeadedAttention(num_heads, feature_dim)
@@ -135,7 +93,7 @@ class AttentionalPropagation(nn.Module):
         return self.mlp(torch.cat([x, message], dim=1))
 
 
-class AttentionalGNN(nn.Module):
+class AttentionalGNN(nn.Module):  #图神经网络层
     def __init__(self, feature_dim: int, layer_names: list, use_layernorm=False):
         super().__init__()
         self.layers = nn.ModuleList([
@@ -155,7 +113,7 @@ class AttentionalGNN(nn.Module):
 
 
 def log_sinkhorn_iterations(Z, log_mu, log_nu, iters: int):
-    """ Perform Sinkhorn Normalization in Log-space for stability"""
+    """ Perform Sinkhorn Normalization in Log-space for stability最优传输问题"""
     u, v = torch.zeros_like(log_mu), torch.zeros_like(log_nu)
     for _ in range(iters):
         u = log_mu - torch.logsumexp(Z + v.unsqueeze(1), dim=2)
@@ -164,7 +122,7 @@ def log_sinkhorn_iterations(Z, log_mu, log_nu, iters: int):
 
 
 def log_optimal_transport(scores, alpha, iters: int):
-    """ Perform Differentiable Optimal Transport in Log-space for stability"""
+    """ Perform Differentiable Optimal Transport in Log-space for stability最优传输问题"""
     b, m, n = scores.shape
     one = scores.new_tensor(1)
     ms, ns = (m*one).to(scores), (n*one).to(scores)
