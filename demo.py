@@ -143,8 +143,8 @@ if __name__ == '__main__':
 
     image0_tensor = frame2tensor(image0, device)
     image1_tensor = frame2tensor(image1, device)
-    image0_ksd = matching.superpoint({'images': image0_tensor})
-    image1_ksd = matching.superpoint({'images': image1_tensor})
+    image0_ksd = matching.superpoint({'image': image0_tensor})
+    image1_ksd = matching.superpoint({'image': image1_tensor})
 
     image0_ksd = {k + '0': image0_ksd[k] for k in keys} #对键值重命名
     image1_ksd = {k + '1': image1_ksd[k] for k in keys}
