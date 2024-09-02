@@ -44,6 +44,12 @@
 # --------------------------------------------------------------------*/
 # %BANNER_END%
 
+"""
+这个文件是调用电脑摄像头进行配准的一个演示
+使用的superpoint权重是唯一的那个
+使用的superglue权重是superglue_cocohomo.pt
+"""
+
 from pathlib import Path
 import argparse
 import cv2

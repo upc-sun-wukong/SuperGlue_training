@@ -32,7 +32,7 @@ def change_lr(epoch, config, optimizer):
         print("Changed learning rate to {}".format(c_lr))
 
 def train(config, rank):
-    is_distributed = (rank >=0)
+    is_distributed = (rank >=0)  #是否分布式训练
     save_dir = Path(config['train_params']['save_dir'])
     weight_dir = save_dir / "weights"
     weight_dir.mkdir(parents=True, exist_ok=True)
@@ -54,7 +54,7 @@ def train(config, rank):
         print("Restored model weights..")
         if config['train_params']['start_epoch'] < 0:
             start_epoch = restore_dict['epoch'] + 1
-    if is_distributed and config['train_params']['sync_bn']:
+    if is_distributed and config['train_params']['sync_bn']:  #是否设置分布式训练
         superglue_model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(superglue_model).to(device)
     pg0, pg1, pg2 = [], [], []
     for k, v in superglue_model.named_modules():
@@ -163,9 +163,9 @@ def train(config, rank):
                 'gt_vec': gt_vector
             }
             total_loss, pos_loss, neg_loss = superglue_model(superglue_input, **{'mode': 'train'})
-            total_loss.backward()
-            optimizer.step()
-            optimizer.zero_grad()
+            total_loss.backward() #计算损失函数相对于模型参数的梯度。
+            optimizer.step() #更新模型参数
+            optimizer.zero_grad() #清除所有模型参数的梯度
             t4 = time_synchronized()
             if ema:
                 ema.update(superglue_model)

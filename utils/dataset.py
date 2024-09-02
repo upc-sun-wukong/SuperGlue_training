@@ -8,16 +8,16 @@ from .preprocess_utils import get_perspective_mat, scale_homography, resize_aspe
 from pathlib import Path
 
 class COCO_loader(Dataset):
-    def __init__(self, dataset_params, typ="train"):
+    def __init__(self, dataset_params, typ="train"):  #包含数据集路径、增强参数、图像大小等配置信息。
         super(COCO_loader, self).__init__()
         self.config = dataset_params
         self.aug_params = dataset_params['augmentation_params']
         self.dataset_path = dataset_params['dataset_path']
         self.aspect_resize = dataset_params['resize_aspect']
         self.apply_aug = dataset_params['apply_color_aug']
-        self.images_path = os.path.join(self.dataset_path, "{}2017".format(typ))
-        self.json_path = os.path.join(self.dataset_path, 'annotations', 'instances_{}2017.json'.format(typ))
-        self.coco_json = coco.COCO(self.json_path)
+        self.images_path = os.path.join(self.dataset_path, "{}2017".format(typ)) #图像文件的路径
+        self.json_path = os.path.join(self.dataset_path, 'annotations', 'instances_{}2017.json'.format(typ)) #COCO 注释文件的路径
+        self.coco_json = coco.COCO(self.json_path) #使用COCO API读取注释文件，获取图像ID列表
         self.images = self.coco_json.getImgIds()
         if self.apply_aug:
             import albumentations as alb
@@ -28,15 +28,16 @@ class COCO_loader(Dataset):
             self.aug_func = alb.Compose(self.aug_list, p=0.65)
 
     def __len__(self):
-        return len(self.images)
+        return len(self.images) #返回数据集中的图像数量，即 COCO 数据集中图像 ID 的数量
 
+    # 数据增强： 如果启用了数据增强（apply_aug），则使用 albumentations 库定义了一系列的图像增强操作
     def apply_augmentations(self, image1, image2):
         image1_dict = {'image': image1}
         image2_dict = {'image': image2}
         result1, result2 = self.aug_func(**image1_dict), self.aug_func(**image2_dict)
         return result1['image'], result2['image']
 
-    def __getitem__(self, index: int):
+    def __getitem__(self, index: int):#根据索引 index 从数据集中读取一对图像及其对应的变换矩阵，并返回它们
         resize = True
         img_id = self.images[index]
         file_name = self.coco_json.loadImgs(ids=[img_id])[0]['file_name']
@@ -46,6 +47,7 @@ class COCO_loader(Dataset):
             image = resize_aspect_ratio(image, self.config['image_height'], self.config['image_width'])
             resize = False
         height, width = image.shape[0:2]
+        #使用 get_perspective_mat 函数生成一个随机的透视变换矩阵
         homo_matrix = get_perspective_mat(self.aug_params['patch_ratio'], width//2, height//2, self.aug_params['perspective_x'], self.aug_params['perspective_y'], self.aug_params['shear_ratio'], self.aug_params['shear_angle'], self.aug_params['rotation_angle'], self.aug_params['scale'], self.aug_params['translation'])
         warped_image = cv2.warpPerspective(image.copy(), homo_matrix, (width, height))
         if resize:
