@@ -142,7 +142,7 @@ def train(config, rank):
             train_dataloader.sampler.set_epoch(epoch)
         pbar = enumerate(train_dataloader)
         if rank in [-1, 0]:
-            torch.cuda.empty_cache()  #清理显存
+            # torch.cuda.empty_cache()  #清理显存
             pbar = tqdm(pbar, total=num_batches)
         optimizer.zero_grad()
         mloss = torch.zeros(6, device=device)
@@ -191,7 +191,7 @@ def train(config, rank):
             total_loss.backward()
             optimizer.step()
             optimizer.zero_grad()
-            torch.cuda.empty_cache()  # 清理显存，防止后续内存不足
+            # torch.cuda.empty_cache()  # 清理显存，防止后续内存不足
             t4 = time_synchronized()
             if ema:
                 ema.update(superglue_model)
@@ -219,7 +219,7 @@ def train(config, rank):
                 t5 = time_synchronized()
         if rank in [-1, 0]:
             print("\nDoing evaluation..")
-            torch.cuda.empty_cache()  # 清理显存
+            # torch.cuda.empty_cache()  # 清理显存
             with torch.no_grad():
                 if ema:
                     eval_superglue = ema.ema
