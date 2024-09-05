@@ -21,7 +21,7 @@ class COCO_loader(Dataset):
         self.images = self.coco_json.getImgIds()
         if self.apply_aug:
             import albumentations as alb
-            self.aug_list = [alb.OneOf([alb.RandomBrightness(limit=0.4, p=0.6), alb.RandomContrast(limit=0.3, p=0.7)], p=0.6),
+            self.aug_list = [alb.OneOf([alb.RandomBrightnessContrast(limit=0.4, p=0.6), alb.RandomBrightnessContrast(limit=0.3, p=0.7)], p=0.6),
                              alb.OneOf([alb.MotionBlur(p=0.5), alb.GaussNoise(p=0.6)], p=0.5),
                              #alb.JpegCompression(quality_lower=65, quality_upper=100,p=0.4)
                              ]
