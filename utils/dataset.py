@@ -15,7 +15,7 @@ class COCO_loader(Dataset):
         self.dataset_path = dataset_params['dataset_path']
         self.aspect_resize = dataset_params['resize_aspect']
         self.apply_aug = dataset_params['apply_color_aug']
-        self.images_path = os.path.join(self.dataset_path, "{}2017".format(typ)) #图像文件的路径
+        self.images_path = os.path.join(self.dataset_path, "image") #图像文件的路径
         self.json_path = os.path.join(self.dataset_path, 'annotations', 'instances_{}2017.json'.format(typ)) #COCO 注释文件的路径
         self.coco_json = coco.COCO(self.json_path) #使用COCO API读取注释文件，获取图像ID列表
         self.images = self.coco_json.getImgIds()
@@ -44,6 +44,7 @@ class COCO_loader(Dataset):
         file_path = os.path.join(self.images_path, file_name)
         # image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
         image = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         if self.aspect_resize:
             image = resize_aspect_ratio(image, self.config['image_height'], self.config['image_width'])
             resize = False
@@ -69,8 +70,9 @@ class COCO_valloader(Dataset):
         super(COCO_valloader, self).__init__()
         self.config = dataset_params
         self.dataset_path = dataset_params['dataset_path']
-        self.images_path = os.path.join(self.dataset_path, "val2017")
-        self.txt_path = str(Path(__file__).parent.parent / 'assets/coco_val_images_homo.txt')
+        self.images_path = os.path.join(self.dataset_path, "val")
+        # self.txt_path = str(Path(__file__).parent.parent / 'assets/coco_val_images_homo.txt')
+        self.txt_path = str(Path(__file__).parent.parent / 'assets/outdoor_test_images_homo.txt')
         with open(self.txt_path, 'r') as f:
             self.image_info = f.readlines()
 
@@ -82,7 +84,9 @@ class COCO_valloader(Dataset):
         image_name = split_info[0]
         homo_info = list(map(lambda x: float(x), split_info[1:]))
         homo_matrix = np.array(homo_info).reshape((3,3)).astype(np.float32)
-        image = cv2.imread(os.path.join(self.images_path, image_name), cv2.IMREAD_GRAYSCALE)
+        # image = cv2.imread(os.path.join(self.images_path, image_name), cv2.IMREAD_GRAYSCALE)
+        image = cv2.imread(os.path.join(self.images_path, image_name), cv2.IMREAD_UNCHANGED)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         height, width = image.shape[0:2]
         warped_image = cv2.warpPerspective(image.copy(), homo_matrix, (width, height))
         orig_resized = cv2.resize(image, (self.config['image_width'], self.config['image_height']))
