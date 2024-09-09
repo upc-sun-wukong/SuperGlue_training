@@ -235,7 +235,7 @@ if __name__ == "__main__":
         dist.init_process_group(backend='nccl', init_method='env://')
     else:
         if "cpu" not in device: torch.cuda.set_device(device)
-    with open(opt.config_path, 'r') as file:
+    with open(opt.config_path, 'r') as file: #添加encoding='utf-8'，修改默认编码器
         config = yaml.full_load(file)
     config["train_params"]['save_dir'] = increment_path(Path(config['train_params']['output_dir']) / config['train_params']['experiment_name'])
     if opt.local_rank in [0, -1]:
