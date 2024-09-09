@@ -42,7 +42,8 @@ class COCO_loader(Dataset):
         img_id = self.images[index]
         file_name = self.coco_json.loadImgs(ids=[img_id])[0]['file_name']
         file_path = os.path.join(self.images_path, file_name)
-        image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
+        # image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
+        image = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
         if self.aspect_resize:
             image = resize_aspect_ratio(image, self.config['image_height'], self.config['image_width'])
             resize = False
