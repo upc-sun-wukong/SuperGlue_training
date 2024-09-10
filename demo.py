@@ -68,7 +68,7 @@ if __name__ == '__main__':
              'dimension, if -1, do not resize')
 
     parser.add_argument(
-        '--superglue', default='customer_superglue',#coco_homo     outdoor
+        '--superglue', default='customer_superglue',#coco_homo     outdoor customer_superglue
         help='SuperGlue weights')
     parser.add_argument(
         '--max_keypoints', type=int, default=-1,
@@ -137,8 +137,8 @@ if __name__ == '__main__':
     matching = Matching(config).eval().to(device)
     keys = ['keypoints', 'scores', 'descriptors']
 
-    image0 = cv2.imread('images/image1.jpg')[:, :, 0]
-    image1 = cv2.imread('images/infrared.jpg')[:,:,0]
+    image0 = cv2.imread('images/1.jpg')[:, :, 0]
+    image1 = cv2.imread('images/2.jpg')[:,:,0]
     if image0 is None or image1 is None: raise ValueError(f"image could not be read,is none")
 
     image0_tensor = frame2tensor(image0, device)
