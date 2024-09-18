@@ -1,19 +1,19 @@
 train_params:
   output_dir: output/train
-  experiment_name: 0918 #output输出文件中训练数据输出文件名
-  experiment_tag: default #name for experiment in wandb logging
-  start_epoch: 0 #是否继续上次节点进行训练 是（-1） 否（0）use -1 to resume the epoch number from restore_path ckpt given
+  experiment_name: superglueV1 #output输出文件中训练数据输出文件名
+  experiment_tag: superglueV1 #name for experiment in wandb logging
+  start_epoch: -1 #是否继续上次节点进行训练 是（-1） 否（0）use -1 to resume the epoch number from restore_path ckpt given
   batch_size: 2
   num_epochs: 90
   sync_bn: false #whether to sync batch norm layer in distributed training setting
-  restore_opt: true #whether to restore the optimizer states while resuming the training from given ckpt
+  restore_opt: false #是否需要从上一次？？？whether to restore the optimizer states while resuming the training from given ckpt
   num_workers: 4 #number of dataloader workers
   log_interval: 50 
   debug: true #if true plots the matched keypoints for one image in every batch during training
   debug_path: "debug" #folder where debug plots should be stored
   debug_iters: 10 #number of iters in each epoch for which debug plot should be made
   val_images_count: 10 #should be <= 1500. Number of images to use for computing validation score
-  use_wandb: false #whether to use wandb to log checkpoints to cloud(Useful if training in colab)
+  use_wandb: false #是否使用wandb将实验数据上传到云端whether to use wandb to log checkpoints to cloud(Useful if training in colab)
   use_ema: false #whether to maintain moving average of superglue model weights that will be used in testing and inference
   init_seed: 10
 
@@ -21,7 +21,7 @@ superglue_params:
   sinkhorn_iterations: 50
   match_threshold: 0.2
   num_layers: 9
-  restore_path: "E:\\daily_Log\\0731\\SuperGlue_training\\output\\train\\0918\\weights\\last.pt" #存储检查点文件的路径 path to the ckpt from which training should be resumed
+  restore_path: "E:\\daily_Log\\0731\\SuperGlue_training\\output\\train\\superglueV1\\weights\\last.pt" #存储检查点文件的路径 path to the ckpt from which training should be resumed
   use_layernorm: false #whether to use layernorm instead of batchnorm in the MLP layer
   bin_value: 1.0 #initial value for dustbin in assignment
   pos_loss_weight: 0.45 #weightage for positive(matched points) components of loss

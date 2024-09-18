@@ -54,7 +54,7 @@ def train(config, rank):
     for _, k in superpoint_model.named_parameters():
         k.requires_grad = False
     start_epoch = config['train_params']['start_epoch'] if config['train_params']['start_epoch'] > -1 else 0
-    if config['superglue_params']['restore_path']:
+    if config['superglue_params']['restore_path'] :
         restore_dict = torch.load(config['superglue_params']['restore_path'], map_location=device)
         superglue_model.load_state_dict(clean_checkpoint(restore_dict['model'] if 'model' in restore_dict else restore_dict))
         print("Restored model weights..")
