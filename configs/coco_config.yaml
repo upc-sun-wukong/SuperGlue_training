@@ -1,13 +1,13 @@
 train_params:
   output_dir: output/train
-  experiment_name: default
+  experiment_name: 0918 #output输出文件中训练数据输出文件名
   experiment_tag: default #name for experiment in wandb logging
   start_epoch: 0 #use -1 to resume the epoch number from restore_path ckpt given
-  batch_size: 1
+  batch_size: 2
   num_epochs: 90
   sync_bn: false #whether to sync batch norm layer in distributed training setting
   restore_opt: true #whether to restore the optimizer states while resuming the training from given ckpt
-  num_workers: 0 #number of dataloader workers
+  num_workers: 4 #number of dataloader workers
   log_interval: 50 
   debug: true #if true plots the matched keypoints for one image in every batch during training
   debug_path: "debug" #folder where debug plots should be stored
@@ -42,7 +42,7 @@ optimizer_params:
   step_value: 0.9440608762859234 #Determines the decay rate of learning rate after step_epoch. Curr value is for 40 epochs after which init lr will be divided by 10
 
 dataset_params:
-  dataset_path: "../dataset"#Path to COCO dataset that contains the 'train2017', 'val2017' and 'annotations' folder
+  dataset_path: "E:\\program\\dataset\\coco2017\\coco"#Path to COCO dataset that contains the 'train2017', 'val2017' and 'annotations' folder
   apply_color_aug: true #whether to apply photometric distortions
   image_height: 480 
   image_width: 640

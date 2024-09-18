@@ -1,6 +1,3 @@
-# 设置CUDA内存分配配置
-import os
-os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:128'
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
@@ -26,23 +23,8 @@ from torch.utils.tensorboard import SummaryWriter
 import subprocess
 import os
 import signal
-def preexec_function():
-    # 忽略 SIGHUP 信号
-    signal.signal(signal.SIGHUP, signal.SIG_IGN)
-    # 创建新的会话，脱离控制终端
-    os.setsid()
 
-def run_in_background():
-    # 打开输出文件，以追加模式写入
-    with open('nohup.txt', 'a') as output_file:
-        process = subprocess.Popen(
-            ['python', 'train_superglue.py'],
-            stdout=output_file,
-            stderr=output_file,
-            preexec_fn=preexec_function,
-            close_fds=True
-        )
-    print(f"Started train_superglue.py with PID: {process.pid}")
+
 
 def change_lr(epoch, config, optimizer):
     if epoch >= config['optimizer_params']['step_epoch']:
@@ -142,7 +124,6 @@ def train(config, rank):
             train_dataloader.sampler.set_epoch(epoch)
         pbar = enumerate(train_dataloader)
         if rank in [-1, 0]:
-            # torch.cuda.empty_cache()  #清理显存
             pbar = tqdm(pbar, total=num_batches)
         optimizer.zero_grad()
         mloss = torch.zeros(6, device=device)
@@ -191,7 +172,6 @@ def train(config, rank):
             total_loss.backward()
             optimizer.step()
             optimizer.zero_grad()
-            # torch.cuda.empty_cache()  # 清理显存，防止后续内存不足
             t4 = time_synchronized()
             if ema:
                 ema.update(superglue_model)
@@ -219,7 +199,6 @@ def train(config, rank):
                 t5 = time_synchronized()
         if rank in [-1, 0]:
             print("\nDoing evaluation..")
-            # torch.cuda.empty_cache()  # 清理显存
             with torch.no_grad():
                 if ema:
                     eval_superglue = ema.ema
@@ -249,7 +228,7 @@ def train(config, rank):
 
 
 if __name__ == "__main__":
-    run_in_background()
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_path', type=str, default="configs/coco_config.yaml", help="Path to the config file")
     parser.add_argument('--local_rank', type=int, default=-1, help="Rank of the process incase of DDP")
