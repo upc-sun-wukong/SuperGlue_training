@@ -6,7 +6,7 @@ train_params:
   batch_size: 2
   num_epochs: 90
   sync_bn: false #whether to sync batch norm layer in distributed training setting
-  restore_opt: false #是否需要从上一次？？？whether to restore the optimizer states while resuming the training from given ckpt
+  restore_opt: true #是否需要从上一次？？？whether to restore the optimizer states while resuming the training from given ckpt
   num_workers: 4 #number of dataloader workers
   log_interval: 50 
   debug: true #if true plots the matched keypoints for one image in every batch during training
@@ -21,7 +21,7 @@ superglue_params:
   sinkhorn_iterations: 50
   match_threshold: 0.2
   num_layers: 9
-  restore_path: "E:\\daily_Log\\0731\\SuperGlue_training\\output\\train\\superglueV1\\weights\\last.pt" #存储检查点文件的路径 path to the ckpt from which training should be resumed
+  restore_path: ##"E:\\daily_Log\\0731\\SuperGlue_training\\output\\train\\superglueV1\\weights\\last.pt" #存储检查点文件的路径 path to the ckpt from which training should be resumed
   use_layernorm: false #whether to use layernorm instead of batchnorm in the MLP layer
   bin_value: 1.0 #initial value for dustbin in assignment
   pos_loss_weight: 0.45 #weightage for positive(matched points) components of loss
