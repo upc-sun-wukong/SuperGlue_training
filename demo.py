@@ -35,8 +35,10 @@ def tps_transform(src_points, dst_points, points):
     :param points: 需要变换的点集 (m, 2)
     :return: 变换后的点集 (m, 2)
     """
+    # 使用Rbf（径向基函数插值）创建用于X坐标和Y坐标的TPS变换
     rbf_x = Rbf(src_points[:, 0], src_points[:, 1], dst_points[:, 0], function='thin_plate', smooth=5)
     rbf_y = Rbf(src_points[:, 0], src_points[:, 1], dst_points[:, 1], function='thin_plate', smooth=5)
+    # 对需要变换的点集进行插值变换，得到变换后的点集
     transformed_points = np.vstack((rbf_x(points[:, 0], points[:, 1]), rbf_y(points[:, 0], points[:, 1]))).T
     return transformed_points
 
